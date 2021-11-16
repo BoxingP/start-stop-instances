@@ -109,3 +109,10 @@ class LambdaStack(cdk.Stack):
                                         comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD)
         lambda_alarm.apply_removal_policy(cdk.RemovalPolicy.DESTROY)
         lambda_alarm.add_alarm_action(actions.SnsAction(lambda_topic))
+
+        cdk.CfnOutput(self, 'OutputLambdaName',
+                      export_name='-'.join([construct_id, 'lambda name'.replace(' ', '-')]),
+                      value=lambda_function.function_name)
+        cdk.CfnOutput(self, 'OutputLambdaARN',
+                      export_name='-'.join([construct_id, 'lambda arn'.replace(' ', '-')]),
+                      value=lambda_function.function_arn)
