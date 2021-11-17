@@ -12,7 +12,7 @@ def check_instance_status(service, instance):
             )
             return response['Reservations'][0]['Instances'][0]['State']['Name']
         elif service == 'rds':
-            response = client.start_db_instance(
+            response = client.describe_db_instances(
                 DBInstanceIdentifier=instance
             )
             return response['DBInstances'][0]['DBInstanceStatus']
