@@ -31,12 +31,33 @@ def remove_instance(service, instances, statuses):
     return instances_to_operate
 
 
+def is_sqlserver(condition, service, instances):
+    statuses = {'instances_are_on': ['stopped', 'stopping'], 'instances_are_off': ['available', 'starting']}
+    if service == 'rds':
+        client = boto3.client(service)
+        results = []
+        for instance in instances:
+            response = client.describe_db_instances(
+                DBInstanceIdentifier=instance
+            )
+            if 'sqlserver' in response['DBInstances'][0]['Engine'] and \
+                    response['DBInstances'][0]['DBInstanceStatus'] not in statuses[condition.__name__]:
+                results.append(True)
+            else:
+                results.append(False)
+        return all(results)
+    else:
+        return False
+
+
 def wait_until(condition, timeout, period=5, *args):
     deadline = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
     while datetime.datetime.now() < deadline:
         if condition(*args):
             return
         time.sleep(period)
+    if is_sqlserver(condition, *args):
+        return
     raise ValueError('%s is incorrect.' % condition)
 
 
